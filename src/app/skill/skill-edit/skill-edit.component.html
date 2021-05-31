@@ -1,0 +1,65 @@
+<div class="container-fluid d-flex justify-content-center align-items-center" style="height: 85vh;" *ngIf="skill">
+    <form [formGroup]="skillForm" (submit)="updateChange()" (keydown.enter)="confirmation($event)" class="form-group">
+        <div class="card shadow" style="max-width: 770px; min-width: 240px;">
+            <div class="card-header bg-primary text-light">
+                <h2 class="card-title">Skill Details</h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col">
+                        <h3>ID: {{skill.id}}</h3>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col mt-2">
+                        <label for="skillName" class="form-label">Skill Name: {{skill.name}}</label>
+                        <input type="text" class="form-control" id="skillName" formControlName="name" required>
+                        <div *ngIf="name?.invalid && (name?.dirty || name?.touched)">
+                            <span *ngIf="name?.errors?.required" class="badge bg-danger">
+                                <i class="fas fa-exclamation-triangle"></i> Cannot be empty!
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <button type="button" class="btn btn-light shadow" (click)="goBackSkill()">
+                    <i class="fas fa-arrow-left"></i>&nbsp; Go Back
+                </button>
+                <button id="confirmUpdateBtn" type="button" [disabled]="!skillForm.valid" class="btn btn-primary float-end shadow" 
+                data-bs-toggle="modal" 
+                data-bs-target="#updateConfimation">
+                    Save
+                </button>
+                <div class="modal fade" id="updateConfimation" 
+                tabindex="-1" 
+                aria-labelledby="updateConfimationLabel" 
+                aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="updateConfimationLabel">Update Confirmation</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            Are you sure you want to save the changes made?
+                        </div>
+                        <div class="modal-footer">
+                            <button id="modalCloseBtn" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Yes</button>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div *ngIf="showToast" class="card shadow" style="max-width:500px; position: fixed;  bottom: 20px; right: 20px;">
+    <div class="card-header">
+        <h6 class="card-title">Notice!</h6>
+    </div>
+    <div class="card-boddy m-3">
+        <p class="card-text">{{ actionMessage }}</p>
+    </div>
+</div>

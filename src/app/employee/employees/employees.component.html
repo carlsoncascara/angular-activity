@@ -1,0 +1,164 @@
+<nav class="navbar bg-success px-2">
+    <h2 class="navbar-brand m-0 p-2 text-light">Employee</h2>
+    <ul class="navbar-nav ms-auto">
+        <li class="nav-item">
+            <button class="btn text-light" type="button" 
+            data-bs-toggle="collapse" 
+            data-bs-target="#employeeCreation"
+            aria-expanded="false"
+            aria-controls="employeeCreation">
+                <i class="fas fa-plus"></i>&nbsp; <strong>Add Employee</strong>
+            </button>
+        </li>
+    </ul>
+</nav>
+<div class="container-fluid mt-3" style="min-height: 78vh;">
+    <div class="container-md collapse my-3" id="employeeCreation">
+        <form class="form-group" *ngIf="employeeForm" [formGroup]="employeeForm" (submit)="addEmployee()">
+            <div class="card">
+                <div class="card-header"><h3 class="card-title">Add New Employee</h3></div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-12 col-md-3">
+                            <label for="form-label">Employee ID</label>
+                            <input type="number" readonly min=1 formControlName="employeeID" class="form-control border-0 shadow" id="employeeID" required>
+                            <div *ngIf="empID?.invalid && (empID?.dirty || empID?.touched)">
+                                <div *ngIf="empID?.errors?.required" class="alert alert-danger" role="alert">
+                                    <i class="fas fa-exclamation-triangle">&nbsp; </i>Cannot be empty!
+                                </div>
+                                <div *ngIf="empID?.errors?.min" class="alert alert-danger" role="alert">
+                                    <i class="fas fa-exclamation-triangle">&nbsp; </i>Must be greater than 0!
+                                </div>
+                                <div *ngIf="empID?.errors?.idExist" class="alert alert-danger" role="alert">
+                                    <i class="fas fa-exclamation-triangle">&nbsp; </i>ID already exist!
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12 col-md-6 mt-2">
+                            <label for="form-label">First Name</label>
+                            <input type="text" formControlName="firstName" class="form-control border-0 shadow" id="firstName" required>
+                            <div *ngIf="fname?.invalid && (fname?.dirty || fname?.touched)">
+                                <div *ngIf="fname?.errors?.required" class="alert alert-danger" role="alert">
+                                    <i class="fas fa-exclamation-triangle">&nbsp; </i>Cannot be empty!
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6 mt-2">
+                            <label for="form-label">Last Name</label>
+                            <input type="text" formControlName="lastName" class="form-control border-0 shadow" id="lastName" required>
+                            <div *ngIf="lname?.invalid && (lname?.dirty || lname?.touched)">
+                                <div *ngIf="lname?.errors?.required" class="alert alert-danger" role="alert">
+                                    <i class="fas fa-exclamation-triangle">&nbsp; </i>Cannot be empty!
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12 col-md-4 mt-2">
+                            <label for="form-label">Birthdate</label>
+                            <input type="date" formControlName="birthdate" class="form-control border-0 shadow" id="birthdate" required>
+                            <div *ngIf="bdate?.invalid && (bdate?.dirty || bdate?.touched)">
+                                <div *ngIf="bdate?.errors?.required" class="alert alert-danger" role="alert">
+                                    <i class="fas fa-exclamation-triangle">&nbsp; </i>Cannot be empty!
+                                </div>
+                                <div *ngIf="bdate?.errors?.invalidBirthdate" class="alert alert-danger" role="alert">
+                                    <i class="fas fa-exclamation-triangle">&nbsp; </i>Age must be 15 or above!
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col mt-3">
+                            <h4>Skills</h4>
+                            <ul class="list-group list-group-horizontal d-flex flex-wrap justify-content-center" formArrayName="skills">                            
+                                <li class="list-group-item m-1 shadow-sm" style="border:none;" *ngFor="let skill of skills.controls; let i=index">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" [formControlName]="i" id="skillChoice"  >
+                                        <label class="form-check-label" for="skillChoice">
+                                            {{skillGroup[i].name}}
+                                        </label>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">                
+                    <button class="btn btn-primary float-end" type="submit" [disabled]="!employeeForm?.valid">Add Employee</button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="table-responsive shadow">
+        <table class="table table-striped my-0 mx-auto" style="min-width: 900px;">
+            <thead class="table-dark">
+                <tr>
+                    <th class="px-3">ID</th>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Age</th>
+                    <th>Skills</th>
+                    <th class="text-center">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let employee of employees">
+                    <td class="px-3">{{employee.employeeID}}</td>
+                    <td>{{employee.firstName}}</td>
+                    <td>{{employee.lastName}}</td>
+                    <td>{{getAge(employee.birthdate)}}</td>
+                    <td style="width: 35%;">
+                        <ul class="list-group list-group-horizontal d-flex flex-wrap">
+                            <li class="list-group-item text-center m-1 shadow-sm" style="border:none;" *ngFor="let skill of employee.skills">
+                                {{ getSkillName(skill) }}
+                            </li>
+                        </ul>
+                    </td>
+                    <td class="text-center">
+                        <div class="btn-group">
+                            <a routerLink="/employee-detail/{{employee.employeeID}}" class="btn btn-success">
+                                <i class="far fa-edit"></i>
+                            </a>                    
+                            <button type="button" (click)="toRemove(employee.employeeID)" 
+                            class="btn btn-danger" 
+                            data-bs-toggle="modal" 
+                            data-bs-target="#removeEmployee">
+                                <i class="fas fa-trash"></i>
+                            </button>  
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="modal fade" id="removeEmployee" 
+tabindex="-1" 
+aria-labelledby="removeEmployeeLabel" 
+aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="removeEmployeeLabel">Remove Confirmation</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            Are you sure you want to delete the employee?
+        </div>
+        <div class="modal-footer">
+            <button id="modalCloseBtn" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="button" (click)="deleteEmployee(toDelete)" class="btn btn-primary">Yes</button>
+        </div>
+    </div>
+    </div>
+</div>
+<div *ngIf="showToast" class="card shadow" style="max-width:500px; position: fixed;  bottom: 20px; right: 20px;">
+    <div class="card-header">
+        <h6 class="card-title">Notice!</h6>
+    </div>
+    <div class="card-boddy m-3">
+        <p class="card-text">{{ actionMessage }}</p>
+    </div>
+</div>

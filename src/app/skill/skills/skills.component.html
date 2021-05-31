@@ -1,0 +1,133 @@
+<nav class="navbar bg-success px-2">
+    <h2 class="navbar-brand m-0 p-2 text-light">Skills</h2>
+    <ul class="navbar-nav ms-auto">
+        <li class="nav-item">
+            <button class="btn text-light" type="button" 
+            data-bs-toggle="collapse" 
+            data-bs-target="#skillCreation"
+            aria-expanded="false"
+            aria-controls="skillCreation">
+                <i class="fas fa-plus"></i>&nbsp; <strong>Add Skill</strong>
+            </button>
+        </li>
+    </ul>
+</nav>
+<div class="container-fluid mt-3" style="min-height: 78vh;">
+    <div class="collapse container my-3" id="skillCreation">
+        <form [formGroup]="skillForm" (ngSubmit)="addSkill()">
+            <div class="card mx-auto" style="max-width: 500px;">
+                <div class="card-header">
+                    <h3 class="card-title">Add Skill</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-12">
+                            <label for="newSkillID" class="form-label px-2 d-block d-sm-none">ID</label>
+                            <div class="input-group shadow border-0">
+                                <label for="newSkillID" class="input-group-text border-0 d-none d-sm-block">ID</label>
+                                <input id="newSkillID" readonly type="number" class="form-control border-0" formControlName="id" required min=1>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col">
+                            <div *ngIf="id?.invalid && (id?.dirty || id?.touched)">
+                                <span *ngIf="id?.errors?.required" class="badge bg-danger">
+                                    <i class="fas fa-exclamation-triangle"></i> Cannot be empty!
+                                </span>
+                                <span *ngIf="id?.errors?.min" class="badge bg-danger">
+                                    <i class="fas fa-exclamation-triangle"></i> Must be greater than 0!
+                                </span>
+                                <span *ngIf="id?.errors?.idExist" class="badge bg-danger">
+                                    <i class="fas fa-exclamation-triangle"></i> ID already exist!
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <label for="newSkillName" class="form-label px-2 d-block d-sm-none">Name</label>
+                            <div class="input-group shadow border-0">
+                                <label for="newSkillName" class="input-group-text border-0 d-none d-sm-block">Name</label>
+                                <input id="newSkillName" type="text" class="form-control border-0" formControlName="name" >
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <div *ngIf="name?.invalid && (name?.dirty || name?.touched)">
+                                <span *ngIf="name?.errors?.required" class="badge bg-danger">
+                                    <i class="fas fa-exclamation-triangle"></i> Cannot be empty!
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <button type="submit" [disabled]="!skillForm.valid" class="btn btn-primary float-end">Add Skill</button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="container-md">
+        <div class="table-responsive shadow">
+            <table class="table m-0 table-striped">
+                <thead class="bg-dark text-light">
+                    <tr>
+                        <th class="px-3">ID</th>
+                        <th>Name</th>
+                        <th class="text-center" style="width: 200px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let skill of skills">
+                        <td class="px-3">{{skill.id}}</td>
+                        <td>{{skill.name}}</td>
+                        <td class="text-center">
+                            <div class="btn-group shadow-sm">
+                                <a routerLink="/skill-detail/{{skill.id}}" class="btn btn-success">
+                                    <i class="far fa-edit"></i>
+                                </a>
+                                <button type="button" (click)="toRemove(skill.id)" 
+                                class="btn btn-danger" 
+                                data-bs-toggle="modal" 
+                                data-bs-target="#removeSkill">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="removeSkill" 
+tabindex="-1" 
+aria-labelledby="removeSkillLabel" 
+aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="removeSkillLabel">Remove Confirmation</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <span *ngIf="!isSkillUsed()">Are you sure you want to delete the skill?</span>
+            <span *ngIf="isSkillUsed()">Unable to remove skill that is currently used.</span>
+        </div>
+        <div class="modal-footer">
+            <button id="modalCloseBtn" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button *ngIf="!isSkillUsed()" type="button" (click)="deleteSkill(toDelete)" class="btn btn-primary">Yes</button>
+        </div>
+    </div>
+    </div>
+</div>
+<div *ngIf="showToast" class="card shadow" style="max-width:500px; position: fixed;  bottom: 20px; right: 20px;">
+    <div class="card-header">
+        <h6 class="card-title">Notice!</h6>
+    </div>
+    <div class="card-boddy m-3">
+        <p class="card-text">{{ actionMessage }}</p>
+    </div>
+</div>

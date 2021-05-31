@@ -1,0 +1,64 @@
+<div class="container-fluid p-2 mt-3 ">
+    <div class="container-xl">
+        <h2 class="m-0 p-2 bg-primary text-light shadow">Employees</h2>
+        <div class="table-responsive shadow mb-3">
+            <table class="table table-light m-0" style="min-width: 900px;">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Employee ID</th>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Age</th>
+                        <th>Skills</th>
+                        <th class="text-center">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let employee of employees"> 
+                        <td class="ps-3">{{employee.employeeID}}</td>
+                        <td>{{employee.firstName}}</td>
+                        <td>{{employee.lastName}}</td>
+                        <td>{{getAge(employee.birthdate)}}</td>
+                        <td style="max-width: 350px;">
+                            <ul class="list-group list-group-horizontal d-flex flex-wrap">
+                                <li class="list-group-item m-1 shadow-sm" style="border:none;" *ngFor="let skill of employee.skills">
+                                    {{ getSkillName(skill) }}
+                                </li>
+                            </ul>
+                        </td>
+                        <td class="text-center">
+                            <a routerLink="/employee-detail/{{employee.employeeID}}" class="btn btn-success mx-auto">
+                                <i class="far fa-edit"></i>
+                            </a>                          
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="container-md">
+        <h2 class="m-0 p-2 bg-primary text-light shadow">Skills</h2>
+        <div class="table-responsive shadow">
+            <table class="table table-light m-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Skill ID</th>
+                        <th>Skill Name</th>
+                        <th class="text-center">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let skill of skills">
+                        <td class="ps-3">{{skill.id}}</td>
+                        <td>{{skill.name}}</td>
+                        <td class="text-center">
+                            <a routerLink="/skill-detail/{{skill.id}}" class="btn btn-success mx-auto">
+                                <i class="far fa-edit"></i>
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
