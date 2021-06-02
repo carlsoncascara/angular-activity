@@ -1,5 +1,8 @@
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+
+import { Observable, of, throwError } from 'rxjs';
+import { catchError, retry } from 'rxjs/operators';
 
 import { Skill } from './skill/skill';
 import { Skills } from './skill/skill-lists';
@@ -9,8 +12,46 @@ import { Skills } from './skill/skill-lists';
 })
 export class SkillService {
 
-  constructor() {}
+  skillUrl = "http://localhost:3000/skill/";
 
+  constructor(
+    private http : HttpClient
+  ) {}
+
+  getDBSkill(id : number | undefined) {
+    if(!id){
+      return this.http.get<Skill[]>(this.skillUrl,{
+        responseType: "json"
+      });
+    }else{
+      return this.http.get<Skill>(this.skillUrl+"/"+id,{
+        responseType: "json"
+      });
+    }
+  }
+
+  postDBSkill(skill : Skill) {
+    const bodyRequest = {
+      name: skill.name
+    };
+    return this.http.post<string>(this.skillUrl, bodyRequest);
+  }
+
+  putDBSkill(skill : Skill) {
+    const bodyRequest = {
+      name: skill.name
+    };
+    return this.http.put<string>(this.skillUrl+"/"+skill.id,bodyRequest);
+  }
+
+  deleteDBSkill(id : number) {
+    return this.http.delete<string>(this.skillUrl+"/"+id);
+  }
+
+
+  /********************************************
+  BELOW IS LINE WILL BE LOCAL STORAGE FUNCTIONS
+  ********************************************/
   getSkills() : Skill[] {
     return Skills();
   }
