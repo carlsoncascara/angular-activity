@@ -14,6 +14,7 @@ export class HomeComponent implements OnInit {
 
   skills : Skill[] = [];
   employees : Employee[] = [];
+  showEmployees = false;
 
   constructor(
     private skillService : SkillService,
@@ -22,19 +23,27 @@ export class HomeComponent implements OnInit {
 
   ngOnInit(): void {
     this.getSkills();
-    this.getEmployees();
   }
 
   getSkills() : void {
-    this.skills = this.skillService.getSkills();
+    this.skillService.getDBSkills().subscribe(
+      skills=>this.skills=skills,
+      err=>console.error(err),
+      ()=>this.getEmployees()
+    );
   }
 
   getEmployees() : void {
-    this.employees = this.employeeService.getEmployees();
+    this.employeeService.getDBEmployees().subscribe(
+      employees=>this.employees=employees,
+      err=>console.error(err),
+      ()=>this.showEmployees=true
+    );  
   }
 
-  getSkillName(id : number) : string {
-    return this.skillService.getSkillName(id);
+  getSkillName(id : number) : string | undefined {
+    const skill = this.skills.find(skill=>skill.id==id);
+    return skill?.name;
   }
 
   getAge(date:any){

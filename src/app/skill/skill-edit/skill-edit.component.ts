@@ -5,6 +5,7 @@ import { FormBuilder, Validators } from '@angular/forms';
 
 import { Skill } from '../skill';
 import { SkillService } from '../../skill.service';
+import { map } from 'jquery';
 
 @Component({
   selector: 'app-skill-edit',
@@ -34,19 +35,27 @@ export class SkillEditComponent implements OnInit {
 
   getSkill(){
     const skillID = Number(this.activatedRoute.snapshot.paramMap.get('id'));
-    this.skillService.getSkill(skillID)
-      .subscribe( skill => {
-          this.skill = skill;
-          this.skillForm.patchValue({
-            id : this.skill.id,
-            name : this.skill.name
-          });
-      });
+    this.skillService.getDBSkill(skillID)
+      .subscribe(
+        skill=>{
+            console.log(skill[0]);
+            
+            this.skill = skill[0];
+            this.skillForm.patchValue({
+              id : this.skill?.id,
+              name : this.skill?.name
+            });          
+          }
+      );
   }
 
   updateChange() : void {
     let skill = this.skillForm.value;
-    this.skillService.updateSkill(skill);
+    this.skillService.putDBSkill(skill).subscribe(
+      (response)=>response,
+      (err)=>console.log(err),
+      ()=>console.log("Complete")
+    );
     document.getElementById("modalCloseBtn")?.click();
     this.actionMessage = "Skill " + this.skillForm.get("name")?.value + " has been updated!";
     this.toShowToast();

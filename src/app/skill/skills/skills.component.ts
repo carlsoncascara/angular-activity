@@ -30,13 +30,10 @@ export class SkillsComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this.getSkills();
     this.getEmployees();
-    this.skillForm = this.initializeBuilder();
   }
 
   initializeBuilder() {
-    this.skillID = 1;
     for(; this.skills.findIndex( skill=>skill.id === this.skillID ) > -1; this.skillID++);
 
     return this.formBuilder.group({
@@ -48,11 +45,31 @@ export class SkillsComponent implements OnInit {
   }
 
   getSkills() : void {
-    this.skills = this.skillService.getSkills();
+    this.skillService.getDBSkills().subscribe(
+      result=>this.skills = result,
+      err=>console.log(err),
+      ()=>this.skillForm = this.initializeBuilder()
+    );
   }
 
   getEmployees() : void {
-    this.employees = this.employeeService.getEmployees();
+    this.employeeService.getDBEmployees().subscribe(
+      employees=>this.employees=employees,
+      err=>console.log(err),
+      ()=>{
+        this.generateID();
+      }
+    );
+  }
+
+  generateID():void{
+    this.skillService.nextID().subscribe(
+      response=>this.skillID = response,
+      err=>console.error(err),
+      ()=>{
+        this.getSkills();
+      }
+    );
   }
 
   get id(){
@@ -65,16 +82,17 @@ export class SkillsComponent implements OnInit {
 
   addSkill() : void {
     let skill : Skill = this.skillForm.value;
-    this.skillService.setSkill(skill);
-    this.skillForm.patchValue({
-      id: "",
-      name: ""
+    this.skillService.postDBSkill(skill).subscribe((message)=>{
+      console.log(message);
+      this.skillForm.patchValue({
+        id: "",
+        name: ""
+      });
+      this.generateID();
+      this.actionMessage = "New Skill Added!";
+      this.toShowToast();
+      document.getElementById("newSkillID")?.focus();
     });
-    this.getSkills();
-    this.skillForm = this.initializeBuilder();
-    this.actionMessage = "New Skill Added!";
-    this.toShowToast();
-    document.getElementById("newSkillID")?.focus();
   }
 
   toRemove(skillID : number) : void {
@@ -85,7 +103,7 @@ export class SkillsComponent implements OnInit {
     let found = false;
     if(this.toDelete >= 0 ){
       for(let cnt = 0; cnt < this.employees.length && !found; cnt++){
-        if(this.employees[cnt].skills.find(skill => skill===this.toDelete)){
+        if(this.employees[cnt].skills.find(skill => skill==this.toDelete)){
           found = true;
         }
       }
@@ -95,12 +113,15 @@ export class SkillsComponent implements OnInit {
 
   deleteSkill(skillID : number) : void{ 
     const skillname = this.skills.find(skill=>skill.id==skillID)?.name;
-    this.skillService.removeSkill(skillID);
-    document.getElementById("modalCloseBtn")?.click();
-    this.getSkills();
-    this.skillForm = this.initializeBuilder();
-    this.actionMessage = "Skill " + skillname + " has been removed!";
-    this.toShowToast();
+    this.skillService.deleteDBSkill(skillID)
+      .subscribe((message)=>{
+        document.getElementById("modalCloseBtn")?.click();
+        this.getSkills();
+        this.skillForm = this.initializeBuilder();
+        this.actionMessage = "Skill " + skillname + " has been removed!";
+        this.toShowToast();
+      }
+    );
   }
 
   toShowToast() {

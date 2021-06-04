@@ -22,17 +22,6 @@
                         <div class="col-12 col-md-3">
                             <label for="form-label">Employee ID</label>
                             <input type="number" readonly min=1 formControlName="employeeID" class="form-control border-0 shadow" id="employeeID" required>
-                            <div *ngIf="empID?.invalid && (empID?.dirty || empID?.touched)">
-                                <div *ngIf="empID?.errors?.required" class="alert alert-danger" role="alert">
-                                    <i class="fas fa-exclamation-triangle">&nbsp; </i>Cannot be empty!
-                                </div>
-                                <div *ngIf="empID?.errors?.min" class="alert alert-danger" role="alert">
-                                    <i class="fas fa-exclamation-triangle">&nbsp; </i>Must be greater than 0!
-                                </div>
-                                <div *ngIf="empID?.errors?.idExist" class="alert alert-danger" role="alert">
-                                    <i class="fas fa-exclamation-triangle">&nbsp; </i>ID already exist!
-                                </div>
-                            </div>
                         </div>
                     </div>
                     <div class="row">

@@ -16,7 +16,13 @@ import { SkillService } from '../../skill.service';
 })
 export class EmployeeEditComponent implements OnInit {
 
-  employee : Employee | undefined;
+  employee : Employee = {
+    employeeID: -1,
+    firstName: "",
+    lastName: "",
+    birthdate: new Date(),
+    skills: []
+  };
   employeeForm = this.formBuilder.group({
     employeeID : ['', Validators.required],
     firstName : ['', Validators.required],
@@ -42,33 +48,42 @@ export class EmployeeEditComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this.getSkills();
-    this.getEmployee();
+    this.getSkills()
   }
   
   getEmployee() : void {
-    const employeeID = Number(this.activatedRoute.snapshot.paramMap.get('id'));
-    this.employeeService.getEmployee(employeeID)
-    .subscribe(employee => {
-      this.employee = employee;
-      this.employeeForm.patchValue({
-        employeeID : this.employee.employeeID,
-        firstName : this.employee.firstName,
-        lastName : this.employee.lastName,
-        birthdate : this.employee.birthdate
-      });    
-      this.skillGroup.forEach((skill)=>{
-        if(employee.skills.findIndex(sk=>skill.id===sk) >= 0){
-          this.skills.push(this.formBuilder.control(true));
-        }else{
-          this.skills.push(this.formBuilder.control(false));
+    const id = Number(this.activatedRoute.snapshot.paramMap.get('id'));
+    var data : Employee[] = [];
+    this.employeeService.getDBEmployee(id).subscribe(
+      (employee : Employee) => {
+        this.employee = employee ? employee : this.employee;
+        this.employeeForm.patchValue({
+          employeeID : this.employee.employeeID,
+          firstName : this.employee.firstName,
+          lastName : this.employee.lastName,
+          birthdate : this.employee.birthdate
         }
-      });
-    });
+      );    
+      this.skillGroup.forEach(
+        (skill)=>{
+          if(this.employee.skills.findIndex(sk=>skill.id==sk) >= 0){
+            this.skills.push(this.formBuilder.control(true));
+          }else{
+            this.skills.push(this.formBuilder.control(false));
+          }
+        }
+      );
+      },
+      err=>console.log(err),
+    );
   }
 
   getSkills() : void {
-    this.skillGroup = this.skillService.getSkills()
+    this.skillService.getDBSkills().subscribe(
+      skills=>this.skillGroup=skills,
+      err=>console.error(err),
+      ()=>this.getEmployee()
+    );
   }
 
   get fname() {
@@ -102,10 +117,16 @@ export class EmployeeEditComponent implements OnInit {
       birthdate: employee.birthdate,
       skills: this.getSkillID(employee.skills)
     }
-    this.employeeService.updateEmployee(data);
-    document.getElementById("modalCloseBtn")?.click();
-    this.actionMessage = "Employee " + data.firstName + " has been updated!";
-    this.toShowToast();
+    console.log(data);
+    this.employeeService.putDBEmployee(data).subscribe(
+      res=>console.log(res),
+      err=>console.log(err),
+      ()=>{
+        document.getElementById("modalCloseBtn")?.click();
+        this.actionMessage = "Employee " + data.firstName + " has been updated!";
+        this.toShowToast();
+      }
+    );
   }
 
   getSkillID(selectedSkill : boolean[]){

@@ -31,10 +31,7 @@ export class EmployeesComponent implements OnInit {
   ) { }
   
   ngOnInit(): void {
-    this.getEmployees();
     this.getSkills();
-    this.employeeForm = this.initializeBuilder();
-    this.initSelectedSkill();
   }
 
   initSelectedSkill() : void {
@@ -44,8 +41,7 @@ export class EmployeesComponent implements OnInit {
   }
 
   initializeBuilder() {
-    this.employeeID = 1;
-    for(;this.employees.findIndex(emp=>emp.employeeID===this.employeeID) > -1; this.employeeID++);
+    for(;this.employees.findIndex(emp=>emp.employeeID==this.employeeID) > -1; this.employeeID++);
 
     return this.formBuilder.group({
       employeeID : [this.employeeID],
@@ -61,13 +57,54 @@ export class EmployeesComponent implements OnInit {
       { updateOn: 'blur' }
     );
   }
-
+  
   getEmployees() : void {
-    this.employees = this.employeeService.getEmployees();
+    this.employeeService.getDBEmployees()
+      .subscribe(
+        employees=>{
+          this.employees = employees.map(employee=>{
+            return {
+              employeeID: employee.employeeID,
+              firstName: employee.firstName,
+              lastName: employee.lastName,
+              birthdate: employee.birthdate,
+              skills: employee.skills
+            }
+          });
+        },
+        err=>console.log(err),
+        ()=>{
+          this.employeeForm = this.initializeBuilder();
+          this.initSelectedSkill();
+        }
+      );
+  }
+
+  generateID():void{
+    this.employeeService.nextID().subscribe(
+      response=>this.employeeID = response,
+      err=>console.error(err),
+      ()=>{
+        this.getEmployees();
+      }
+    );
   }
 
   getSkills() : void {
-    this.skillGroup = this.skillService.getSkills();
+    this.skillService.getDBSkills()
+      .subscribe(
+        (skills)=>this.skillGroup=skills,
+        err=>console.log(err),
+        ()=>{
+          this.employeeService.nextID().subscribe(
+            response=>this.employeeID = response,
+            err=>console.error(err),
+            ()=>{
+              this.generateID();
+            }
+          );
+        }
+      );
   }
 
   addEmployee() : void {
@@ -79,20 +116,23 @@ export class EmployeesComponent implements OnInit {
       birthdate: employee.birthdate,
       skills: this.getSkillID(employee.skills)
     }
-    this.employeeService.setEmployee(data);
-    this.employeeForm?.patchValue({
-      employeeID: '',
-      firstName: '',
-      lastName: '',
-      birthdate: ''
-    });
-    this.skills.clear();
-    this.initSelectedSkill();
-    this.getEmployees();
-    this.employeeForm = this.initializeBuilder();
-    document.getElementById("employeeID")?.focus();
-    this.actionMessage = "New Employee Added!";
-    this.toShowToast();
+    this.employeeService.postDBEmployee(data).subscribe(
+      res=>console.log(res),
+      err=>console.error(err),
+      ()=>{
+        this.employeeForm?.patchValue({
+          employeeID: '',
+          firstName: '',
+          lastName: '',
+          birthdate: ''
+        });
+        this.skills.clear();
+        this.generateID();
+        document.getElementById("employeeID")?.focus();
+        this.actionMessage = "New Employee Added!";
+        this.toShowToast();
+      }
+    );
   }
 
   getSkillID(selectedSkill : boolean[]){
@@ -129,18 +169,23 @@ export class EmployeesComponent implements OnInit {
     return this.employeeForm?.get("skills") as FormArray;
   }
 
-  getSkillName(id : number){
-    return this.skillService.getSkillName(id);
+  getSkillName(id : number) : string {
+    const skill = this.skillGroup.filter(skill=>skill.id==id);
+    return skill[0].name;
   }
 
   deleteEmployee(employeeID : number) : void{
-    const employeeName = this.employees.find( emp => emp.employeeID === employeeID )?.firstName; 
-    this.employeeService.removeEmployee(employeeID);
-    this.getEmployees();
-    this.employeeForm = this.initializeBuilder();
-    document.getElementById("modalCloseBtn")?.click();
-    this.actionMessage = "Employee " + employeeName + " has been removed!";
-    this.toShowToast();
+    const employeeName = this.employees.find( emp => emp.employeeID == employeeID )?.firstName; 
+    this.employeeService.deleteDBEmployee(employeeID).subscribe(
+      res=>console.log(res),
+      err=>console.log(err),
+      ()=>{
+        this.getEmployees();
+        document.getElementById("modalCloseBtn")?.click();
+        this.actionMessage = "Employee " + employeeName + " has been removed!";
+        this.toShowToast();
+      }
+    );
   }
 
   toRemove(employeeID : number) : void {
