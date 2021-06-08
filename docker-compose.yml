@@ -1,0 +1,19 @@
+version: "3"
+services:
+    angular-app:
+        build: .
+        networks:
+            - nodexangular
+        env_file: ./.env
+        ports:
+            - $LOCAL_PORT:$DOCKER_PORT
+        volumes:
+            - ./:/app:ro
+            - /app/node_modules
+        environment:
+            - NODE_ENV=development
+        command: npm run start
+networks:
+    nodexangular:
+        name: nodexangular
+        driver: bridge

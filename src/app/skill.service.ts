@@ -25,7 +25,7 @@ export class SkillService {
   }
   
   getDBSkill(id : number) {
-      return this.http.get<Skill[]>(this.skillUrl+id,{responseType: 'json'});
+      return this.http.get<Skill>(this.skillUrl+id,{responseType: 'json'});
   }
 
   postDBSkill(skill : Skill) {

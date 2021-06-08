@@ -9,6 +9,8 @@ import { validateBirthdate } from '../employee.validator';
 import { Skill } from '../../skill/skill';
 import { SkillService } from '../../skill.service';
 
+import { getDateYMDFormat } from '../../helper/dateparser';
+
 @Component({
   selector: 'app-employee-edit',
   templateUrl: './employee-edit.component.html',
@@ -55,8 +57,14 @@ export class EmployeeEditComponent implements OnInit {
     const id = Number(this.activatedRoute.snapshot.paramMap.get('id'));
     var data : Employee[] = [];
     this.employeeService.getDBEmployee(id).subscribe(
-      (employee : Employee) => {
-        this.employee = employee ? employee : this.employee;
+      async (employee : Employee) => {
+        this.employee = await employee ? {
+          employeeID : employee.employeeID,
+          firstName : employee.firstName,
+          lastName : employee.lastName,
+          birthdate : employee.birthdate,
+          skills : employee.skills
+        } : this.employee;
         this.employeeForm.patchValue({
           employeeID : this.employee.employeeID,
           firstName : this.employee.firstName,

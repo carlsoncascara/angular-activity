@@ -38,9 +38,9 @@ export class SkillEditComponent implements OnInit {
     this.skillService.getDBSkill(skillID)
       .subscribe(
         skill=>{
-            console.log(skill[0]);
+            console.log(skill);
             
-            this.skill = skill[0];
+            this.skill = skill;
             this.skillForm.patchValue({
               id : this.skill?.id,
               name : this.skill?.name

@@ -40,7 +40,7 @@ export class SkillsComponent implements OnInit {
       id : [ this.skillID ],
       name : ['', Validators.required ]
     },{
-      updateOn: 'blur'
+      updateOn: 'change'
     });
   }
 

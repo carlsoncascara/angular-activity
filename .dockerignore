@@ -1,0 +1,7 @@
+node_modules
+Dockerfile
+workspace.code-workspace
+docs
+dist
+.gitignore
+.dockerignore
